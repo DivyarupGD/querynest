@@ -1,22 +1,22 @@
 const labTemplates = [
   ['01','Easy','Explore the data','SELECT',d=>`Return every column from <code>${d.primary}</code>. Use this to understand the available data before answering analytical questions.`],
-  ['02','Easy','Filter a business segment','WHERE',d=>`Find ${d.primary} records that match a useful business condition. Practice filtering before joining related tables.`],
+  ['02','Easy','Filter IDs above 1','WHERE',d=>`Return rows from ${d.primary} where id is greater than 1.`],
   ['03','Easy','Sort the latest activity','ORDER BY',d=>`Return the most recent ${d.related} records, sorted newest first. Limit the result to a practical review size.`],
-  ['04','Easy','Count important records','COUNT',d=>`Count the total number of ${d.primary} records. Return the count with a clear column alias.`],
+  ['04','Easy','Count table rows','COUNT',d=>`Count all rows in ${d.primary} and name the result total.`],
   ['05','Easy','Find missing relationships','JOIN',d=>`Find ${d.primary} records that have no related ${d.related} record. Return meaningful identifying columns.`],
   ['06','Easy','Summarize by category','GROUP BY',d=>`Group ${d.primary} by a relevant category and return the count for each group.`],
   ['07','Medium','Calculate totals per entity','AGGREGATION',d=>`Join <code>${d.primary}</code> and <code>${d.related}</code>, then calculate the total activity for every ${d.entity}.`],
   ['08','Medium','Find above-average activity','SUBQUERY',d=>`Find ${d.entityPlural} whose related activity is above the overall average. Use a subquery or CTE.`],
   ['09','Medium','Build a recent activity report','DATE',d=>`Create a report for activity in the last 30 days. Use PostgreSQL date arithmetic with <code>INTERVAL</code>.`],
-  ['10','Medium','Rank the top performers','WINDOW',d=>`Rank ${d.entityPlural} by their total related activity. Include ties using an appropriate window function.`],
+  ['10','Medium','Rank rows by match count','WINDOW',d=>`Rank ${d.primary} rows by the number of matching ${d.related} rows.`],
   ['11','Medium','Measure month-over-month change','CTE',d=>`Aggregate the activity by month, then calculate change from the previous month using a CTE and <code>LAG()</code>.`],
-  ['12','Medium','Identify repeat behaviour','HAVING',d=>`Find ${d.entityPlural} with more than one related record. Return the entity and number of occurrences.`],
+  ['12','Medium','Find IDs with repeated matches','HAVING',d=>`Find ${d.primary} ids with more than one matching ${d.related} row.`],
   ['13','Medium','Compare segments','CASE',d=>`Create segments using <code>CASE</code> based on total related activity, then count ${d.entityPlural} in each segment.`],
   ['14','Medium','Find the first event','WINDOW',d=>`For each ${d.entity}, return their first related event using <code>ROW_NUMBER()</code> or <code>MIN()</code>.`],
   ['15','Hard','Top three within each group','WINDOW',d=>`Return the top three ${d.related} values within every logical group. Use <code>DENSE_RANK()</code>.`],
-  ['16','Hard','Detect data anomalies','SELF JOIN',d=>`Find unusual patterns by comparing a ${d.entity}'s related values to their previous record or group average.`],
+  ['16','Hard','Find the latest matching date','AGGREGATION',d=>`Return each ${d.primary} id with the latest date from its matching ${d.related} rows.`],
   ['17','Hard','Build a retention cohort','CTE',d=>`Assign ${d.entityPlural} to a cohort based on their first activity month, then measure continuing activity by cohort.`],
-  ['18','Hard','Calculate a running total','WINDOW',d=>`Return each related record with a running total per ${d.entity}. Order the window carefully.`],
+  ['18','Hard','Calculate a running row count','WINDOW',d=>`Return each ${d.related} row with its running count per foreign-key value.`],
   ['19','Hard','Find consecutive activity','GAPS & ISLANDS',d=>`Identify ${d.entityPlural} with activity on consecutive dates. Use the gaps-and-islands pattern.`],
   ['20','Hard','Create an executive report','CTE',d=>`Combine multiple CTEs into one concise report: totals, rankings, and the leading ${d.entity} for every category.`]
 ];
@@ -35,8 +35,27 @@ const domains = [
 
 const loadedDomainKeys = new Set();
 function domainProblems(domain){return labTemplates.map(([number,difficulty,title,tag,prompt])=>{const test=window.domainTestDefinition(number,domain);return {id:`${domain.key.slice(0,2).toUpperCase()}${number}`,title:`${domain.name}: ${title}`,level:difficulty,tag,desc:`<p>${test.objective}</p><p>Use the <b>Schema</b> tab to inspect the connected tables before writing your PostgreSQL query.</p>`,example:`Domain: ${domain.name}\n\n${domain.schema.join('\n')}\n\nRelationships:\n${domain.tables.slice(0,-1).map((table,i)=>`${table} → ${domain.tables[i+1]}`).join('\n')}`,query:`-- ${title}\n-- Write your PostgreSQL query here\nSELECT * FROM ${domain.primary} LIMIT 10;`,setup:domain.setup,expectedQuery:test.expectedQuery,schema:domain.schema.map(line=>{const [name,columns]=line.split(': ');return [name,columns.replaceAll(', ',' · ')];}),hint:'Start with the smallest useful SELECT. Add joins and aggregations one step at a time.'};});}
-function showLabs(){document.body.classList.remove('practice-mode');document.body.classList.add('domains-mode');document.querySelector('#sidebar').classList.remove('open');document.querySelector('.content-grid').hidden=true;document.querySelector('#domainView').hidden=false;document.querySelector('#crumbTitle').textContent='Choose a domain';document.querySelector('#practiceLink').classList.remove('active');document.querySelector('#domainsLink').classList.add('active');}
-function showPractice(context='independent'){document.body.classList.remove('domains-mode');document.body.classList.add('practice-mode');document.querySelector('.content-grid').hidden=false;document.querySelector('#domainView').hidden=true;document.querySelector('#practiceLink').classList.add('active');document.querySelector('#domainsLink').classList.remove('active');if(context==='independent'&&typeof activeDomainPrefix!=='undefined'){activeDomainPrefix=null;renderList();}}
+function showLabs(){
+  document.body.classList.remove('practice-mode','progress-mode');
+  document.body.classList.add('domains-mode');
+  document.querySelector('#sidebar').classList.remove('open');
+  document.querySelector('.content-grid').hidden=true;
+  document.querySelector('#progressView').hidden=true;
+  document.querySelector('#domainView').hidden=false;
+  document.querySelector('#crumbTitle').textContent='Choose a domain';
+  document.querySelectorAll('.nav-link').forEach(link=>link.classList.remove('active'));
+  document.querySelector('#domainsLink').classList.add('active');
+}
+function showPractice(context='independent'){
+  document.body.classList.remove('domains-mode','progress-mode');
+  document.body.classList.add('practice-mode');
+  document.querySelector('.content-grid').hidden=false;
+  document.querySelector('#progressView').hidden=true;
+  document.querySelector('#domainView').hidden=true;
+  document.querySelectorAll('.nav-link').forEach(link=>link.classList.remove('active'));
+  document.querySelector('#practiceLink').classList.add('active');
+  if(context==='independent'&&typeof activeDomainPrefix!=='undefined'){activeDomainPrefix=null;renderList();}
+}
 function openDomain(key){const domain=domains.find(item=>item.key===key);if(!loadedDomainKeys.has(key)){problems.push(...domainProblems(domain));loadedDomainKeys.add(key);renderList();}const labProblems=problems.filter(problem=>problem.id.startsWith(key.slice(0,2).toUpperCase()));const detail=document.querySelector('#domainDetail');detail.hidden=false;detail.innerHTML=`<div class="domain-detail-head"><div><div class="eyebrow">${domain.name.toUpperCase()} DATASET</div><h2>${domain.name} challenge path</h2></div><p>20 challenges · Easy → Hard<br>Click any challenge to open its PostgreSQL workspace.</p></div><div class="domain-schema">${domain.tables.map((table,index)=>`<span>${table}</span>${index<domain.tables.length-1?'<b>→</b>':''}`).join('')}</div><div class="challenge-list">${labProblems.map(problem=>`<button class="challenge-row" data-problem="${problem.id}"><span class="challenge-code">${problem.id.slice(-2)}</span><span class="challenge-name">${problem.title.replace(`${domain.name}: `,'')}</span><span class="challenge-level ${problem.level.toLowerCase()}">${problem.level}</span></button>`).join('')}</div>`;detail.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.challenge-row').forEach(row=>row.onclick=()=>{showPractice();loadProblem(problems.findIndex(problem=>problem.id===row.dataset.problem));document.querySelector('#sidebar').classList.remove('open');});}
 document.querySelector('#domainGrid').innerHTML=domains.map(domain=>`<button class="domain-card" data-domain="${domain.key}"><div class="domain-card-top"><span class="domain-icon">${domain.icon}</span><span class="domain-count">20 CHALLENGES</span></div><h2>${domain.name}</h2><p>Connected, interview-style data with realistic relationships and progressively harder analysis.</p><div class="relationship-map">${domain.tables.map((table,index)=>`<span>${table}</span>${index<domain.tables.length-1?'<i>→</i>':''}`).join('')}</div><span class="domain-open">Open lab →</span></button>`).join('');
 document.querySelectorAll('.domain-card').forEach(card=>card.onclick=()=>openDomain(card.dataset.domain));

@@ -1,0 +1,40 @@
+// Hidden canonical solutions for the 20 reusable domain challenge patterns.
+// Candidate and canonical SQL are evaluated on separate fresh PGlite databases.
+window.domainTestDefinition = function(number, domain) {
+  const context = {
+    banking: { fk: 'account_id', date: 'transaction_at' },
+    healthcare: { fk: 'patient_id', date: 'scheduled_at' },
+    retail: { fk: 'customer_id', date: 'ordered_at' },
+    workforce: { fk: 'employee_id', date: 'paid_on' },
+    travel: { fk: 'traveler_id', date: 'booked_at' },
+    streaming: { fk: 'user_id', date: 'watched_at' },
+    logistics: { fk: 'shipment_id', date: 'occurred_at' },
+    education: { fk: 'student_id', date: 'enrolled_at' },
+    hospitality: { fk: 'guest_id', date: 'checked_in_at' }
+  }[domain.key];
+  const p = domain.primary, r = domain.related, fk = context.fk, date = context.date;
+  const definitions = {
+    '01': [`Return every column from <code>${p}</code>, ordered by <code>id</code>.`, `SELECT * FROM ${p} ORDER BY id`],
+    '02': [`Return every column from <code>${p}</code> where <code>id &gt; 1</code>, ordered by <code>id</code>.`, `SELECT * FROM ${p} WHERE id > 1 ORDER BY id`],
+    '03': [`Return the three most recent rows from <code>${r}</code>, ordered by <code>${date}</code> descending and then <code>id</code> descending.`, `SELECT * FROM ${r} ORDER BY ${date} DESC, id DESC LIMIT 3`],
+    '04': [`Return one row named <code>total</code> containing the number of rows in <code>${p}</code>.`, `SELECT COUNT(*) AS total FROM ${p}`],
+    '05': [`Return the <code>id</code> from <code>${p}</code> for rows with no matching <code>${r}.${fk}</code>, ordered by <code>id</code>.`, `SELECT p.id FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id WHERE r.id IS NULL ORDER BY p.id`],
+    '06': [`Return every <code>${p}.id</code> and the number of matching <code>${r}</code> rows as <code>event_count</code>; include ids with no matching rows. Order by id.`, `SELECT p.id, COUNT(r.id) AS event_count FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id ORDER BY p.id`],
+    '07': [`Return only <code>${p}.id</code> values that have matching <code>${r}</code> rows, plus the number of matches as <code>event_count</code>. Order by id.`, `SELECT p.id, COUNT(r.id) AS event_count FROM ${p} p JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id ORDER BY p.id`],
+    '08': [`Count matching <code>${r}</code> rows for every <code>${p}.id</code>. Return ids whose count is above the average count across all <code>${p}</code> rows, ordered by id.`, `WITH counts AS (SELECT p.id, COUNT(r.id) AS event_count FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id) SELECT id FROM counts WHERE event_count > (SELECT AVG(event_count) FROM counts) ORDER BY id`],
+    '09': [`Return rows from <code>${r}</code> whose <code>${date}</code> is within 30 days of the latest <code>${date}</code> in <code>${r}</code>. Order by <code>${date}</code> and id.`, `SELECT * FROM ${r} WHERE ${date} >= (SELECT MAX(${date}) - INTERVAL '30 days' FROM ${r}) ORDER BY ${date}, id`],
+    '10': [`For every <code>${p}.id</code>, count matching <code>${r}</code> rows and rank the counts with <code>DENSE_RANK()</code> as <code>activity_rank</code>. Order by rank and id.`, `WITH counts AS (SELECT p.id, COUNT(r.id) AS event_count FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id) SELECT id, event_count, DENSE_RANK() OVER (ORDER BY event_count DESC) AS activity_rank FROM counts ORDER BY activity_rank, id`],
+    '11': [`Group <code>${r}</code> rows by the month of <code>${date}</code>. Return each month, its row count, and the previous month's count using <code>LAG()</code>.`, `WITH monthly AS (SELECT DATE_TRUNC('month', ${date})::date AS month, COUNT(*) AS event_count FROM ${r} GROUP BY 1) SELECT month, event_count, LAG(event_count) OVER (ORDER BY month) AS previous_month_count FROM monthly ORDER BY month`],
+    '12': [`Return <code>${p}.id</code> values with more than one matching <code>${r}</code> row, plus the count as <code>event_count</code>. Order by id.`, `SELECT p.id, COUNT(r.id) AS event_count FROM ${p} p JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id HAVING COUNT(r.id) > 1 ORDER BY p.id`],
+    '13': [`For each <code>${p}.id</code>, count matching <code>${r}</code> rows. Label the count <code>None</code>, <code>One</code>, or <code>Repeat</code>, then return each label with its number of ${domain.entityPlural}.`, `WITH counts AS (SELECT p.id, COUNT(r.id) AS event_count FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id), segmented AS (SELECT CASE WHEN event_count=0 THEN 'None' WHEN event_count=1 THEN 'One' ELSE 'Repeat' END AS activity_segment FROM counts) SELECT activity_segment, COUNT(*) AS entity_count FROM segmented GROUP BY activity_segment ORDER BY activity_segment`],
+    '14': [`For each <code>${p}.id</code> with a matching <code>${r}</code> row, return its earliest <code>${r}.id</code> as <code>event_id</code> and earliest <code>${r}.${date}</code> as <code>event_date</code>.`, `WITH ranked AS (SELECT p.id, r.id AS event_id, r.${date} AS event_date, ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.${date},r.id) AS rn FROM ${p} p JOIN ${r} r ON r.${fk}=p.id) SELECT id,event_id,event_date FROM ranked WHERE rn=1 ORDER BY id`],
+    '15': [`For each <code>${r}.${fk}</code>, return up to its three latest <code>${r}</code> rows as <code>id</code>, <code>event_id</code>, and <code>event_date</code>.`, `WITH ranked AS (SELECT r.${fk} AS id,r.id AS event_id,r.${date} AS event_date,ROW_NUMBER() OVER (PARTITION BY r.${fk} ORDER BY r.${date} DESC,r.id DESC) AS rn FROM ${r} r) SELECT id,event_id,event_date FROM ranked WHERE rn<=3 ORDER BY id,event_date DESC,event_id DESC`],
+    '16': [`Return every <code>${p}.id</code> and the latest matching <code>${r}.${date}</code> as <code>latest_event_date</code>; include ids without a matching row.`, `SELECT p.id, MAX(r.${date}) AS latest_event_date FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id ORDER BY p.id`],
+    '17': [`Using <code>${r}.${fk}</code> and <code>${r}.${date}</code>, return each entity's first-month cohort, each month it has a row, and the distinct entity count for that cohort/month.`, `WITH first_activity AS (SELECT ${fk} AS id, DATE_TRUNC('month',MIN(${date}))::date AS cohort_month FROM ${r} GROUP BY ${fk}), activity AS (SELECT ${fk} AS id,DATE_TRUNC('month',${date})::date AS activity_month FROM ${r} GROUP BY ${fk},DATE_TRUNC('month',${date})::date) SELECT f.cohort_month,a.activity_month,COUNT(DISTINCT a.id) AS entity_count FROM first_activity f JOIN activity a ON a.id=f.id GROUP BY f.cohort_month,a.activity_month ORDER BY f.cohort_month,a.activity_month`],
+    '18': [`Return each <code>${r}.id</code>, <code>${r}.${fk}</code>, and <code>${r}.${date}</code>, plus a running count of rows for each <code>${r}.${fk}</code>.`, `SELECT id,${fk} AS entity_id,${date} AS event_date,COUNT(*) OVER (PARTITION BY ${fk} ORDER BY ${date},id) AS running_event_count FROM ${r} ORDER BY ${fk},${date},id`],
+    '19': [`Return rows from <code>${r}</code> where <code>${date}</code> is exactly one day after the prior <code>${date}</code> for the same <code>${fk}</code>. Return id, event_id, and event_date.`, `WITH sequenced AS (SELECT ${fk} AS id,id AS event_id,${date} AS event_date,LAG(${date}) OVER (PARTITION BY ${fk} ORDER BY ${date},id) AS previous_event_date FROM ${r}) SELECT id,event_id,event_date FROM sequenced WHERE event_date=previous_event_date + INTERVAL '1 day' ORDER BY id,event_date,event_id`],
+    '20': [`For every <code>${p}.id</code>, count matching <code>${r}</code> rows and return its <code>overall_rank</code> using <code>DENSE_RANK()</code>. Order by rank and id.`, `WITH counts AS (SELECT p.id,COUNT(r.id) AS event_count FROM ${p} p LEFT JOIN ${r} r ON r.${fk}=p.id GROUP BY p.id) SELECT id,event_count,DENSE_RANK() OVER (ORDER BY event_count DESC) AS overall_rank FROM counts ORDER BY overall_rank,id`]
+  };
+  const [objective, expectedQuery] = definitions[number];
+  return { objective, expectedQuery };
+};

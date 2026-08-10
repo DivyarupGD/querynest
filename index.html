@@ -7,26 +7,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="auth.css" />
-    <link rel="stylesheet" href="domains.css" />
-    <link rel="stylesheet" href="domain-detail.css" />
-    <link rel="stylesheet" href="validation.css" />
-    <link rel="stylesheet" href="layout.css" />
-    <link rel="stylesheet" href="progress.css" />
-    <link rel="stylesheet" href="drawer.css" />
-    <link rel="stylesheet" href="visibility.css" />
-    <link rel="stylesheet" href="sidebar-all-pages.css" />
-    <link rel="stylesheet" href="question-nav.css" />
-    <link rel="stylesheet" href="crumb.css" />
-    <link rel="stylesheet" href="domain-only.css" />
-    <link rel="stylesheet" href="schema-view.css" />
-    <link rel="stylesheet" href="difficulty-levels.css" />
-    <link rel="stylesheet" href="submission.css" />
-    <link rel="stylesheet" href="domain-flow.css" />
-    <link rel="stylesheet" href="sql-reference.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/auth.css" />
+    <link rel="stylesheet" href="assets/css/domains.css" />
+    <link rel="stylesheet" href="assets/css/domain-detail.css" />
+    <link rel="stylesheet" href="assets/css/validation.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/progress.css" />
+    <link rel="stylesheet" href="assets/css/progress-domains.css" />
+    <link rel="stylesheet" href="assets/css/drawer.css" />
+    <link rel="stylesheet" href="assets/css/visibility.css" />
+    <link rel="stylesheet" href="assets/css/sidebar-all-pages.css" />
+    <link rel="stylesheet" href="assets/css/question-nav.css" />
+    <link rel="stylesheet" href="assets/css/crumb.css" />
+    <link rel="stylesheet" href="assets/css/domain-only.css" />
+    <link rel="stylesheet" href="assets/css/schema-view.css" />
+    <link rel="stylesheet" href="assets/css/difficulty-levels.css" />
+    <link rel="stylesheet" href="assets/css/submission.css" />
+    <link rel="stylesheet" href="assets/css/domain-flow.css" />
+    <link rel="stylesheet" href="assets/css/sql-reference.css" />
   </head>
-  <body>
+  <body class="sidebar-collapsed">
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="brand"><div class="brand-mark">⌘</div><span>querynest</span><button class="drawer-close" id="drawerClose" aria-label="Close navigation">×</button></div>
@@ -73,20 +74,20 @@
     <div class="toast" id="toast"></div>
     <div class="auth-modal" id="authModal" aria-hidden="true"><form class="auth-card" id="authForm"><div class="auth-mark">⌘</div><h2>Welcome to QueryNest</h2><p>Sign in with the account you were invited to use.</p><label>Email<input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com" /></label><label>Password<input id="authPassword" type="password" autocomplete="current-password" required placeholder="Your password" /></label><button class="auth-submit" type="submit">Sign in</button><div class="auth-error" id="authError"></div></form></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
-    <script src="app.js" defer></script>
-    <script src="domains.js" defer></script>
-    <script src="difficulty-balance.js" defer></script>
-    <script src="dataset-augmentation.js" defer></script>
-    <script src="domain-tests.js" defer></script>
-    <script src="progress.js" defer></script>
-    <script src="progress-sidebar.js" defer></script>
-    <script src="question-nav.js" defer></script>
-    <script src="submission.js" defer></script>
-    <script src="domain-flow.js" defer></script>
-    <script src="difficulty-filters.js" defer></script>
-    <script src="crumb-navigation.js" defer></script>
-    <script src="domain-only.js" defer></script>
-    <script src="schema-view.js" defer></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/app.js" defer></script>
+    <script src="assets/js/features/domains.js" defer></script>
+    <script src="assets/js/features/difficulty-balance.js" defer></script>
+    <script src="assets/js/features/dataset-augmentation.js" defer></script>
+    <script src="assets/js/features/domain-tests.js" defer></script>
+    <script src="assets/js/features/progress.js" defer></script>
+    <script src="assets/js/features/progress-sidebar.js" defer></script>
+    <script src="assets/js/features/question-nav.js" defer></script>
+    <script src="assets/js/features/submission.js" defer></script>
+    <script src="assets/js/features/domain-flow.js" defer></script>
+    <script src="assets/js/features/difficulty-filters.js" defer></script>
+    <script src="assets/js/features/crumb-navigation.js" defer></script>
+    <script src="assets/js/features/domain-only.js" defer></script>
+    <script src="assets/js/features/schema-view.js" defer></script>
   </body>
 </html>
