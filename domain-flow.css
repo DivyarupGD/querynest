@@ -1,0 +1,1 @@
+.domain-sequence{display:grid;gap:6px;min-width:170px}.domain-sequence-head{display:flex;justify-content:space-between;align-items:center;color:#607175;font:700 10px 'DM Mono'}.domain-sequence-track{height:5px;background:#e5efed;border-radius:99px;overflow:hidden}.domain-sequence-track i{display:block;height:100%;background:#14b89a;border-radius:99px;transition:width .22s ease}

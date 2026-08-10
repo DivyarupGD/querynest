@@ -1,0 +1,2 @@
+/* QueryNest is domain-first: the legacy independent-practice library is not exposed. */
+#practiceLink{display:none}body:not(.domain-session) .library-label,body:not(.domain-session) .filter-row,body:not(.domain-session) .problem-list{display:none}body.domains-mode .daily-card,body.progress-mode .daily-card{display:flex}
