@@ -1,0 +1,2 @@
+/* Keep all difficulty filters inside the narrow navigation drawer. */
+.filter-row{gap:2px;padding-left:5px;padding-right:5px;overflow:hidden}.filter{padding:6px 4px;font-size:11px;white-space:nowrap}
