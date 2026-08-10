@@ -1,0 +1,35 @@
+/* Keep query execution results inside the workspace instead of growing the editor. */
+body.practice-mode .content-grid{
+  height:calc(100dvh - 70px);
+  min-height:0;
+  overflow:hidden;
+}
+body.practice-mode .editor-panel{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+  grid-template-rows:48px minmax(0,1fr) 58px minmax(210px,.7fr);
+}
+body.practice-mode .editor-wrap{
+  min-height:0;
+  overflow:hidden;
+}
+body.practice-mode .editor-wrap textarea{
+  height:100%;
+  min-height:0;
+  overflow:auto;
+}
+body.practice-mode .result-panel{
+  min-height:0;
+  overflow:auto;
+}
+
+@media(max-width:900px){
+  body.practice-mode .content-grid{
+    height:auto;
+    overflow:visible;
+  }
+  body.practice-mode .editor-panel{
+    height:650px;
+  }
+}
