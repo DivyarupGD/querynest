@@ -1,6 +1,6 @@
 # QueryNest
 
-QueryNest is an invite-only SQL practice app for two users. Learner queries run against an isolated PostgreSQL-compatible database in the browser, so the application database is never exposed to arbitrary SQL.
+QueryNest is an invite-only SQL interview-practice app. Learner queries run against isolated PostgreSQL-compatible datasets in the browser, while Supabase stores accounts and progress.
 
 ## Free production stack
 
@@ -21,3 +21,25 @@ Then visit `http://localhost:8000`. An internet connection is needed the first t
 The Supabase database will hold `profiles`, `domains`, `datasets`, `problems`, `problem_test_cases`, `user_progress`, and `saved_queries`. Each `problem` belongs to a reusable domain dataset (for example, the banking tables `customers`, `accounts`, and `transactions`).
 
 Do not put Supabase service-role credentials in the browser. The client only uses the public anonymous key with row-level security enabled.
+
+## Project structure
+
+```text
+assets/
+  css/                 Presentation styles, grouped by feature
+  js/
+    app.js             Core editor, query execution, and authentication
+    config.js          Public Supabase configuration
+    features/          Domain labs, grading, progress, schema view, navigation
+supabase/
+  schema.sql           Base tables, RLS policies, and profile trigger
+  progress-migration.sql
+index.html             Static application entry point
+```
+
+## Content model
+
+- `domains.js` defines the domain datasets and table schemas.
+- `dataset-augmentation.js` increases each dataset with realistic generated rows.
+- `domain-tests.js` contains the hidden canonical query for each challenge pattern.
+- `difficulty-balance.js` assigns each domain path its Easy, Medium, Hard, and Super Hard mix.
