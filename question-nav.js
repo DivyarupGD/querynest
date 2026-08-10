@@ -1,0 +1,5 @@
+const domainCodePattern=/^(BA|HE|RE|WO|TR|ST|LO|ED|HO)\d{2}$/;
+const originalLoadProblem=loadProblem;
+function updateQuestionNavigation(){const problem=problems[current];const navigation=document.querySelector('#questionNav');if(!problem||!domainCodePattern.test(problem.id)){navigation.hidden=true;return;}const prefix=problem.id.slice(0,2);const indexes=problems.map((item,index)=>({item,index})).filter(({item})=>item.id.startsWith(prefix)).map(({index})=>index);const position=indexes.indexOf(current);navigation.hidden=false;document.querySelector('#questionPosition').textContent=`Question ${position+1} of ${indexes.length}`;document.querySelector('#previousQuestion').disabled=position===0;document.querySelector('#nextQuestion').disabled=position===indexes.length-1;document.querySelector('#previousQuestion').onclick=()=>{if(position>0)loadProblem(indexes[position-1]);};document.querySelector('#nextQuestion').onclick=()=>{if(position<indexes.length-1)loadProblem(indexes[position+1]);};}
+loadProblem=function(index){originalLoadProblem(index);updateQuestionNavigation();window.scrollTo({top:0,behavior:'smooth'});};
+updateQuestionNavigation();

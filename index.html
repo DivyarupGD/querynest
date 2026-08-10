@@ -10,26 +10,40 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="auth.css" />
     <link rel="stylesheet" href="domains.css" />
+    <link rel="stylesheet" href="domain-detail.css" />
+    <link rel="stylesheet" href="validation.css" />
+    <link rel="stylesheet" href="layout.css" />
+    <link rel="stylesheet" href="progress.css" />
+    <link rel="stylesheet" href="drawer.css" />
+    <link rel="stylesheet" href="visibility.css" />
+    <link rel="stylesheet" href="sidebar-all-pages.css" />
+    <link rel="stylesheet" href="question-nav.css" />
+    <link rel="stylesheet" href="crumb.css" />
+    <link rel="stylesheet" href="domain-only.css" />
+    <link rel="stylesheet" href="schema-view.css" />
+    <link rel="stylesheet" href="difficulty-levels.css" />
+    <link rel="stylesheet" href="submission.css" />
+    <link rel="stylesheet" href="domain-flow.css" />
+    <link rel="stylesheet" href="sql-reference.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
-        <div class="brand"><div class="brand-mark">⌘</div><span>querynest</span></div>
+        <div class="brand"><div class="brand-mark">⌘</div><span>querynest</span><button class="drawer-close" id="drawerClose" aria-label="Close navigation">×</button></div>
+      <button class="drawer-backdrop" id="drawerBackdrop" aria-label="Close navigation"></button>
         <nav class="main-nav">
           <a class="nav-link active" href="#" id="practiceLink"><span>▣</span> Practice</a>
           <a class="nav-link" href="#" id="domainsLink"><span>◫</span> Domain labs</a>
-          <a class="nav-link" href="#"><span>◔</span> Progress</a>
-          <a class="nav-link" href="#"><span>♙</span> Leaderboard</a>
+          <a class="nav-link" href="#" id="progressLink"><span>◔</span> Progress</a>
         </nav>
         <div class="library-label">PROBLEM LIBRARY</div>
-        <div class="filter-row"><button class="filter active">All</button><button class="filter">Easy</button><button class="filter">Medium</button></div>
+        <div class="filter-row"><button class="filter active">All</button><button class="filter">Easy</button><button class="filter">Medium</button><button class="filter">Hard</button><button class="filter">Super Hard</button></div>
         <div class="problem-list" id="problemList"></div>
-        <div class="daily-card"><div class="daily-icon">✦</div><div><strong>Daily challenge</strong><p>Keep your 4-day streak alive</p></div><span>→</span></div>
         <div class="profile"><div class="avatar" id="avatar">QN</div><div><strong id="profileName">Guest</strong><small id="profileRole">Sign in to save progress</small></div><button class="more" id="signOutButton" title="Sign out">↪</button></div>
       </aside>
 
       <main class="workspace">
-        <header class="topbar"><button class="menu-button" id="menuButton">☰</button><div class="crumb">Practice <span>/</span> <b id="crumbTitle">Second Highest Salary</b></div><div class="top-actions"><button class="streak">⚡ <b>4</b> day streak</button><button class="icon-button">?</button></div></header>
+        <header class="topbar"><button class="menu-button" id="menuButton">☰</button><div class="crumb"><button id="crumbPractice">Domain labs</button><span>/</span> <b id="crumbTitle">Choose a domain</b></div><div class="top-actions"><button class="icon-button">?</button></div></header>
         <section class="content-grid">
           <article class="problem-panel">
             <div class="problem-head"><div><div class="eyebrow" id="problemNumber">PROBLEM 002</div><h1 id="problemTitle">Second Highest Salary</h1></div><span class="difficulty medium" id="difficulty">Medium</span></div>
@@ -37,19 +51,23 @@
             <div class="description" id="description"></div>
             <div class="example"><div class="example-title">Example</div><div class="code-block" id="exampleCode"></div></div>
             <div class="hint-box"><button id="hintButton"><span>✦</span> Need a hint?<i>⌄</i></button><p id="hintText">Think about how you can order values and limit the result to one row.</p></div>
+            <div class="question-nav" id="questionNav" hidden><button id="previousQuestion">← Previous</button><span id="questionPosition"></span><button id="nextQuestion">Next →</button></div>
+            <details class="sql-reference"><summary><span>⌘</span> PostgreSQL quick reference <i>⌄</i></summary><div class="reference-grid"><div><b>Filter & sort</b><code>WHERE amount &gt; 100<br>ORDER BY created_at DESC<br>LIMIT 10</code></div><div><b>Join tables</b><code>FROM customers c<br>JOIN orders o ON o.customer_id = c.id<br>LEFT JOIN payments p ON ...</code></div><div><b>Aggregate</b><code>COUNT(*), SUM(amount)<br>GROUP BY customer_id<br>HAVING COUNT(*) &gt; 1</code></div><div><b>CTE</b><code>WITH totals AS (<br>  SELECT ...<br>) SELECT * FROM totals;</code></div><div><b>Window functions</b><code>ROW_NUMBER() OVER (<br>  PARTITION BY customer_id<br>  ORDER BY created_at DESC)</code></div><div><b>Dates</b><code>CURRENT_DATE - INTERVAL '7 days'<br>DATE_TRUNC('month', created_at)<br>created_at::date</code></div><div><b>Conditional logic</b><code>CASE WHEN total &gt; 100<br>THEN 'High' ELSE 'Low' END<br>COALESCE(value, 0)</code></div><div><b>PostgreSQL notes</b><code>ILIKE '%text%'<br>NULLS LAST<br>FILTER (WHERE status = 'paid')</code></div></div></details>
           </article>
 
           <section class="editor-panel">
-            <div class="editor-toolbar"><div class="tab active"><span class="sql-dot">S</span> solution.sql <button>×</button></div><button class="add-tab">+</button><div class="toolbar-space"></div><button class="dialect">PostgreSQL <span>⌄</span></button><button class="expand">⛶</button></div>
+            <div class="editor-toolbar"><div class="tab active"><span class="sql-dot">S</span> solution.sql <button>×</button></div><button class="add-tab">+</button><div class="toolbar-space"></div><span class="dialect">PostgreSQL</span></div>
             <div class="editor-wrap"><div class="line-numbers" id="lineNumbers">1<br>2<br>3</div><textarea id="queryEditor" spellcheck="false"></textarea></div>
-            <div class="runbar"><button class="reset-button" id="resetButton">↶ Reset</button><div class="shortcut">⌘ <span>Enter</span></div><button class="run-button" id="runButton">Run query <span>▶</span></button></div>
+            <div class="runbar"><button class="reset-button" id="resetButton">↶ Reset</button><div class="shortcut">⌘ <span>Enter</span></div><button class="run-button" id="runButton">Run query <span>▶</span></button><button class="submit-button" id="submitButton">Submit solution <span>✓</span></button></div>
             <div class="result-panel"><div class="result-tabs"><button class="result-tab active" data-tab="results">Results <span id="resultBadge"></span></button><button class="result-tab" data-tab="schema">Schema</button><div class="result-status" id="resultStatus">Ready to run</div></div><div class="results-content" id="resultsContent"></div></div>
           </section>
         </section>
         <section class="domain-view" id="domainView" hidden>
-          <div class="domain-intro"><div><div class="eyebrow">RELATIONAL DATASETS</div><h1>Domain labs</h1><p>Practice on connected tables—the closest thing to real interview and workplace data.</p></div><div class="library-count"><b>120</b><span>guided challenges</span></div></div>
+          <div class="domain-intro"><div><div class="eyebrow">RELATIONAL DATASETS</div><h1>Domain labs</h1><p>Practice on connected tables—the closest thing to real interview and workplace data.</p></div><div><div class="library-count"><b>180</b><span>guided challenges</span></div></div></div>
           <div class="domain-grid" id="domainGrid"></div>
+          <section class="domain-detail" id="domainDetail" hidden></section>
         </section>
+        <section class="progress-view" id="progressView" hidden></section>
       </main>
     </div>
     <div class="toast" id="toast"></div>
@@ -58,5 +76,17 @@
     <script src="config.js"></script>
     <script src="app.js" defer></script>
     <script src="domains.js" defer></script>
+    <script src="difficulty-balance.js" defer></script>
+    <script src="dataset-augmentation.js" defer></script>
+    <script src="domain-tests.js" defer></script>
+    <script src="progress.js" defer></script>
+    <script src="progress-sidebar.js" defer></script>
+    <script src="question-nav.js" defer></script>
+    <script src="submission.js" defer></script>
+    <script src="domain-flow.js" defer></script>
+    <script src="difficulty-filters.js" defer></script>
+    <script src="crumb-navigation.js" defer></script>
+    <script src="domain-only.js" defer></script>
+    <script src="schema-view.js" defer></script>
   </body>
 </html>

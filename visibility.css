@@ -1,0 +1,2 @@
+/* Author display rules (such as .content-grid { display:grid }) must not override hidden views. */
+[hidden]{display:none !important}
