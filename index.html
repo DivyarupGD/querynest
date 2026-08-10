@@ -9,13 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="auth.css" />
+    <link rel="stylesheet" href="domains.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="brand"><div class="brand-mark">⌘</div><span>querynest</span></div>
         <nav class="main-nav">
-          <a class="nav-link active" href="#"><span>▣</span> Practice</a>
+          <a class="nav-link active" href="#" id="practiceLink"><span>▣</span> Practice</a>
+          <a class="nav-link" href="#" id="domainsLink"><span>◫</span> Domain labs</a>
           <a class="nav-link" href="#"><span>◔</span> Progress</a>
           <a class="nav-link" href="#"><span>♙</span> Leaderboard</a>
         </nav>
@@ -44,6 +46,10 @@
             <div class="result-panel"><div class="result-tabs"><button class="result-tab active" data-tab="results">Results <span id="resultBadge"></span></button><button class="result-tab" data-tab="schema">Schema</button><div class="result-status" id="resultStatus">Ready to run</div></div><div class="results-content" id="resultsContent"></div></div>
           </section>
         </section>
+        <section class="domain-view" id="domainView" hidden>
+          <div class="domain-intro"><div><div class="eyebrow">RELATIONAL DATASETS</div><h1>Domain labs</h1><p>Practice on connected tables—the closest thing to real interview and workplace data.</p></div><div class="library-count"><b>120</b><span>guided challenges</span></div></div>
+          <div class="domain-grid" id="domainGrid"></div>
+        </section>
       </main>
     </div>
     <div class="toast" id="toast"></div>
@@ -51,5 +57,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="app.js" defer></script>
+    <script src="domains.js" defer></script>
   </body>
 </html>
