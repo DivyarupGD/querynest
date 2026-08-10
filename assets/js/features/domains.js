@@ -35,8 +35,27 @@ const domains = [
 
 const loadedDomainKeys = new Set();
 function domainProblems(domain){return labTemplates.map(([number,difficulty,title,tag,prompt])=>{const test=window.domainTestDefinition(number,domain);return {id:`${domain.key.slice(0,2).toUpperCase()}${number}`,title:`${domain.name}: ${title}`,level:difficulty,tag,desc:`<p>${test.objective}</p><p>Use the <b>Schema</b> tab to inspect the connected tables before writing your PostgreSQL query.</p>`,example:`Domain: ${domain.name}\n\n${domain.schema.join('\n')}\n\nRelationships:\n${domain.tables.slice(0,-1).map((table,i)=>`${table} → ${domain.tables[i+1]}`).join('\n')}`,query:`-- ${title}\n-- Write your PostgreSQL query here\nSELECT * FROM ${domain.primary} LIMIT 10;`,setup:domain.setup,expectedQuery:test.expectedQuery,schema:domain.schema.map(line=>{const [name,columns]=line.split(': ');return [name,columns.replaceAll(', ',' · ')];}),hint:'Start with the smallest useful SELECT. Add joins and aggregations one step at a time.'};});}
-function showLabs(){document.body.classList.remove('practice-mode');document.body.classList.add('domains-mode');document.querySelector('#sidebar').classList.remove('open');document.querySelector('.content-grid').hidden=true;document.querySelector('#domainView').hidden=false;document.querySelector('#crumbTitle').textContent='Choose a domain';document.querySelector('#practiceLink').classList.remove('active');document.querySelector('#domainsLink').classList.add('active');}
-function showPractice(context='independent'){document.body.classList.remove('domains-mode');document.body.classList.add('practice-mode');document.querySelector('.content-grid').hidden=false;document.querySelector('#domainView').hidden=true;document.querySelector('#practiceLink').classList.add('active');document.querySelector('#domainsLink').classList.remove('active');if(context==='independent'&&typeof activeDomainPrefix!=='undefined'){activeDomainPrefix=null;renderList();}}
+function showLabs(){
+  document.body.classList.remove('practice-mode','progress-mode');
+  document.body.classList.add('domains-mode');
+  document.querySelector('#sidebar').classList.remove('open');
+  document.querySelector('.content-grid').hidden=true;
+  document.querySelector('#progressView').hidden=true;
+  document.querySelector('#domainView').hidden=false;
+  document.querySelector('#crumbTitle').textContent='Choose a domain';
+  document.querySelectorAll('.nav-link').forEach(link=>link.classList.remove('active'));
+  document.querySelector('#domainsLink').classList.add('active');
+}
+function showPractice(context='independent'){
+  document.body.classList.remove('domains-mode','progress-mode');
+  document.body.classList.add('practice-mode');
+  document.querySelector('.content-grid').hidden=false;
+  document.querySelector('#progressView').hidden=true;
+  document.querySelector('#domainView').hidden=true;
+  document.querySelectorAll('.nav-link').forEach(link=>link.classList.remove('active'));
+  document.querySelector('#practiceLink').classList.add('active');
+  if(context==='independent'&&typeof activeDomainPrefix!=='undefined'){activeDomainPrefix=null;renderList();}
+}
 function openDomain(key){const domain=domains.find(item=>item.key===key);if(!loadedDomainKeys.has(key)){problems.push(...domainProblems(domain));loadedDomainKeys.add(key);renderList();}const labProblems=problems.filter(problem=>problem.id.startsWith(key.slice(0,2).toUpperCase()));const detail=document.querySelector('#domainDetail');detail.hidden=false;detail.innerHTML=`<div class="domain-detail-head"><div><div class="eyebrow">${domain.name.toUpperCase()} DATASET</div><h2>${domain.name} challenge path</h2></div><p>20 challenges · Easy → Hard<br>Click any challenge to open its PostgreSQL workspace.</p></div><div class="domain-schema">${domain.tables.map((table,index)=>`<span>${table}</span>${index<domain.tables.length-1?'<b>→</b>':''}`).join('')}</div><div class="challenge-list">${labProblems.map(problem=>`<button class="challenge-row" data-problem="${problem.id}"><span class="challenge-code">${problem.id.slice(-2)}</span><span class="challenge-name">${problem.title.replace(`${domain.name}: `,'')}</span><span class="challenge-level ${problem.level.toLowerCase()}">${problem.level}</span></button>`).join('')}</div>`;detail.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.challenge-row').forEach(row=>row.onclick=()=>{showPractice();loadProblem(problems.findIndex(problem=>problem.id===row.dataset.problem));document.querySelector('#sidebar').classList.remove('open');});}
 document.querySelector('#domainGrid').innerHTML=domains.map(domain=>`<button class="domain-card" data-domain="${domain.key}"><div class="domain-card-top"><span class="domain-icon">${domain.icon}</span><span class="domain-count">20 CHALLENGES</span></div><h2>${domain.name}</h2><p>Connected, interview-style data with realistic relationships and progressively harder analysis.</p><div class="relationship-map">${domain.tables.map((table,index)=>`<span>${table}</span>${index<domain.tables.length-1?'<i>→</i>':''}`).join('')}</div><span class="domain-open">Open lab →</span></button>`).join('');
 document.querySelectorAll('.domain-card').forEach(card=>card.onclick=()=>openDomain(card.dataset.domain));
