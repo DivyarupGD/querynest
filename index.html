@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="assets/css/domain-flow.css" />
     <link rel="stylesheet" href="assets/css/sql-reference.css" />
   </head>
-  <body class="sidebar-collapsed">
+  <body class="domains-mode sidebar-collapsed">
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="brand"><div class="brand-mark">⌘</div><span>querynest</span><button class="drawer-close" id="drawerClose" aria-label="Close navigation">×</button></div>
@@ -45,7 +45,7 @@
 
       <main class="workspace">
         <header class="topbar"><button class="menu-button" id="menuButton">☰</button><div class="crumb"><button id="crumbPractice">Domain labs</button><span>/</span> <b id="crumbTitle">Choose a domain</b></div><div class="top-actions"><button class="icon-button">?</button></div></header>
-        <section class="content-grid">
+        <section class="content-grid" hidden>
           <article class="problem-panel">
             <div class="problem-head"><div><div class="eyebrow" id="problemNumber">PROBLEM 002</div><h1 id="problemTitle">Second Highest Salary</h1></div><span class="difficulty medium" id="difficulty">Medium</span></div>
             <div class="tags"><span>SELECT</span><span>AGGREGATION</span></div>
@@ -63,7 +63,7 @@
             <div class="result-panel"><div class="result-tabs"><button class="result-tab active" data-tab="results">Results <span id="resultBadge"></span></button><button class="result-tab" data-tab="schema">Schema</button><div class="result-status" id="resultStatus">Ready to run</div></div><div class="results-content" id="resultsContent"></div></div>
           </section>
         </section>
-        <section class="domain-view" id="domainView" hidden>
+        <section class="domain-view" id="domainView">
           <div class="domain-intro"><div><div class="eyebrow">RELATIONAL DATASETS</div><h1>Domain labs</h1><p>Practice on connected tables—the closest thing to real interview and workplace data.</p></div><div><div class="library-count"><b>180</b><span>guided challenges</span></div></div></div>
           <div class="domain-grid" id="domainGrid"></div>
           <section class="domain-detail" id="domainDetail" hidden></section>
