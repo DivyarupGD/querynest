@@ -55,7 +55,7 @@ async function syncDraft(problemCode) {
     .maybeSingle();
   if (readError) return;
 
-  const payload = { problem_code: problemCode, query, name: 'Draft', updated_at: new Date().toISOString() };
+  const payload = { user_id: session.user.id, problem_code: problemCode, query, name: 'Draft', updated_at: new Date().toISOString() };
   if (existing) {
     await supabaseClient.from('saved_queries').update(payload).eq('id', existing.id);
   } else {
