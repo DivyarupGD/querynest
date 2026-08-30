@@ -16,6 +16,22 @@ python3 -m http.server 8000
 
 Then visit `http://localhost:8000`. An internet connection is needed the first time because PGlite is loaded from its public package CDN.
 
+### Local Spark Scala runner (optional)
+
+Spark Scala is deliberately a local-only feature. It is not deployed to Cloudflare and it does not send code or datasets to Supabase. Start the static site first, then in a second terminal start the runner with your locally installed Spark shell:
+
+```bash
+SPARK_SHELL=/path/to/spark-shell node local-spark-runner/server.js
+```
+
+For this machine, the installed shell is:
+
+```bash
+SPARK_SHELL=/Users/divyarupghoshdastidar/Documents/spark-2.4.4-bin-hadoop2.6/bin/spark-shell node local-spark-runner/server.js
+```
+
+In QueryNest, select **Spark Scala — local computer only**. The editor provides imports, domain DataFrames, and a `result: DataFrame` wrapper; write only the transformation logic inside that wrapper. The runner listens only on `127.0.0.1:8788` and creates temporary local fixture data for each execution. It keeps one Spark session warm: the first run after starting the runner can take about 30 seconds, while later runs reuse that session and are much faster.
+
 ## Planned data model
 
 The Supabase database will hold `profiles`, `domains`, `datasets`, `problems`, `problem_test_cases`, `user_progress`, and `saved_queries`. Each `problem` belongs to a reusable domain dataset (for example, the banking tables `customers`, `accounts`, and `transactions`).
@@ -31,6 +47,8 @@ assets/
     app.js             Core editor, query execution, and authentication
     config.js          Public Supabase configuration
     features/          Domain labs, grading, progress, schema view, navigation
+local-spark-runner/
+  server.js            Local-only Spark Scala execution service
 supabase/
   schema.sql           Base tables, RLS policies, and profile trigger
   progress-migration.sql

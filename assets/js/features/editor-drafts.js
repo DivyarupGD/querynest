@@ -13,34 +13,43 @@ function persistDrafts() {
   localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(sqlDrafts));
 }
 
+function draftCode(problem) {
+  return typeof querynestEngine !== 'undefined' && querynestEngine === 'spark'
+    ? `spark:${problem.id}`
+    : problem.id;
+}
+
 function saveCurrentDraft() {
+  if (window.querynestSwitchingEngine) return;
   const problem = problems[current];
   if (!problem) return;
-  sqlDrafts[problem.id] = document.querySelector('#queryEditor').value;
+  sqlDrafts[draftCode(problem)] = document.querySelector('#queryEditor').value;
   persistDrafts();
-  scheduleDraftSync(problem.id);
+  scheduleDraftSync(problem);
 }
 
 function restoreDraft(problem) {
   const editor = document.querySelector('#queryEditor');
-  const savedDraft = Object.prototype.hasOwnProperty.call(sqlDrafts, problem.id)
-    ? sqlDrafts[problem.id]
+  const code = draftCode(problem);
+  const savedDraft = Object.prototype.hasOwnProperty.call(sqlDrafts, code)
+    ? sqlDrafts[code]
     : problem.query;
   const cleanedDraft = savedDraft.replace(/^-- .*\n-- Write your PostgreSQL query here\n(?=SELECT \* FROM )/, '');
   if (cleanedDraft !== savedDraft) {
-    sqlDrafts[problem.id] = cleanedDraft;
+    sqlDrafts[code] = cleanedDraft;
     persistDrafts();
   }
   editor.value = cleanedDraft;
   updateLines();
 }
 
-function scheduleDraftSync(problemCode) {
+function scheduleDraftSync(problem) {
   window.clearTimeout(draftSyncTimer);
-  draftSyncTimer = window.setTimeout(() => syncDraft(problemCode), 700);
+  draftSyncTimer = window.setTimeout(() => syncDraft(problem), 700);
 }
 
-async function syncDraft(problemCode) {
+async function syncDraft(problem) {
+  const problemCode = draftCode(problem);
   const query = sqlDrafts[problemCode];
   if (typeof query !== 'string') return;
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -88,7 +97,9 @@ async function restoreCloudDrafts() {
   if (problem) restoreDraft(problem);
 }
 
-function toggleSqlLineComments(editor) {
+function toggleLineComments(editor) {
+  const commentPrefix = typeof querynestEngine !== 'undefined' && querynestEngine === 'spark' ? '//' : '--';
+  const commentPattern = commentPrefix === '//' ? /^\s*\/\/(?:\s|$)/ : /^\s*--(?:\s|$)/;
   const source = editor.value;
   const selectionStart = editor.selectionStart;
   const selectionEnd = editor.selectionEnd;
@@ -98,10 +109,11 @@ function toggleSqlLineComments(editor) {
   const selectedLines = source.slice(firstLineStart, lastLineEnd);
   const lines = selectedLines.split('\n');
   const nonBlankLines = lines.filter(line => line.trim());
-  const shouldUncomment = nonBlankLines.length > 0 && nonBlankLines.every(line => /^\s*--(?:\s|$)/.test(line));
+  const shouldUncomment = nonBlankLines.length > 0 && nonBlankLines.every(line => commentPattern.test(line));
   const nextLines = lines.map(line => {
     if (!line.trim()) return line;
-    return shouldUncomment ? line.replace(/^(\s*)-- ?/, '$1') : line.replace(/^(\s*)/, '$1-- ');
+    const uncommentPattern = commentPrefix === '//' ? /^(\s*)\/\/ ?/ : /^(\s*)-- ?/;
+    return shouldUncomment ? line.replace(uncommentPattern, '$1') : line.replace(/^(\s*)/, `$1${commentPrefix} `);
   });
   const replacement = nextLines.join('\n');
   editor.setRangeText(replacement, firstLineStart, lastLineEnd, 'select');
@@ -121,7 +133,7 @@ document.querySelector('#queryEditor').addEventListener('input', saveCurrentDraf
 document.querySelector('#queryEditor').addEventListener('keydown', event => {
   if ((event.metaKey || event.ctrlKey) && (event.key === '/' || event.code === 'Slash')) {
     event.preventDefault();
-    toggleSqlLineComments(event.currentTarget);
+    toggleLineComments(event.currentTarget);
   }
 });
 document.querySelector('#submitButton').addEventListener('click', saveCurrentDraft);

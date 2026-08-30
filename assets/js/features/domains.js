@@ -41,6 +41,7 @@ function showLabs(){
   document.querySelector('#sidebar').classList.remove('open');
   document.querySelector('.content-grid').hidden=true;
   document.querySelector('#progressView').hidden=true;
+  document.querySelector('#sparkTrackView').hidden=true;
   document.querySelector('#domainView').hidden=false;
   document.querySelector('#crumbTitle').textContent='Choose a domain';
   document.querySelectorAll('.nav-link').forEach(link=>link.classList.remove('active'));
@@ -51,6 +52,7 @@ function showPractice(context='independent'){
   document.body.classList.add('practice-mode');
   document.querySelector('.content-grid').hidden=false;
   document.querySelector('#progressView').hidden=true;
+  document.querySelector('#sparkTrackView').hidden=true;
   document.querySelector('#domainView').hidden=true;
   document.querySelectorAll('.nav-link').forEach(link=>link.classList.remove('active'));
   document.querySelector('#practiceLink').classList.add('active');
