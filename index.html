@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="assets/css/completion-indicators.css" />
     <link rel="stylesheet" href="assets/css/sidebar-filters.css" />
     <link rel="stylesheet" href="assets/css/hints.css" />
+    <link rel="stylesheet" href="assets/css/spark-scala.css" />
+    <link rel="stylesheet" href="assets/css/spark-track.css" />
   </head>
   <body class="domains-mode sidebar-collapsed">
     <div class="app-shell">
@@ -39,6 +41,7 @@
         <nav class="main-nav">
           <a class="nav-link active" href="#" id="practiceLink"><span>▣</span> Practice</a>
           <a class="nav-link" href="#" id="domainsLink"><span>◫</span> Domain labs</a>
+          <a class="nav-link" href="#" id="sparkTrackLink"><span>ϟ</span> Spark interview track</a>
           <a class="nav-link" href="#" id="progressLink"><span>◔</span> Progress</a>
         </nav>
         <div class="library-label">PROBLEM LIBRARY</div>
@@ -59,13 +62,15 @@
             <div class="hint-box"><button id="hintButton"><span>✦</span> Need a hint?<i>⌄</i></button><p id="hintText">Think about how you can order values and limit the result to one row.</p></div>
             <div class="answer-box" id="answerBox"><button id="answerButton"><span>✓</span><span id="answerButtonLabel">Show reference answer</span><i>⌄</i></button><div class="answer-content"><p>One correct PostgreSQL solution. Your own equivalent query can also be accepted.</p><pre><code id="answerContent"></code></pre></div></div>
             <div class="question-nav" id="questionNav" hidden><button id="previousQuestion">← Previous</button><span id="questionPosition"></span><button id="nextQuestion">Next →</button></div>
-            <details class="sql-reference"><summary><span>⌘</span> PostgreSQL quick reference <i>⌄</i></summary><div class="reference-grid"><div><b>Filter & sort</b><code>WHERE amount &gt; 100<br>ORDER BY created_at DESC<br>LIMIT 10</code></div><div><b>Join tables</b><code>FROM customers c<br>JOIN orders o ON o.customer_id = c.id<br>LEFT JOIN payments p ON ...</code></div><div><b>Aggregate</b><code>COUNT(*), SUM(amount)<br>GROUP BY customer_id<br>HAVING COUNT(*) &gt; 1</code></div><div><b>CTE</b><code>WITH totals AS (<br>  SELECT ...<br>) SELECT * FROM totals;</code></div><div><b>Window functions</b><code>ROW_NUMBER() OVER (<br>  PARTITION BY customer_id<br>  ORDER BY created_at DESC)</code></div><div><b>Dates</b><code>CURRENT_DATE - INTERVAL '7 days'<br>DATE_TRUNC('month', created_at)<br>created_at::date</code></div><div><b>Conditional logic</b><code>CASE WHEN total &gt; 100<br>THEN 'High' ELSE 'Low' END<br>COALESCE(value, 0)</code></div><div><b>PostgreSQL notes</b><code>ILIKE '%text%'<br>NULLS LAST<br>FILTER (WHERE status = 'paid')</code></div></div></details>
+            <details class="sql-reference" id="quickReference"><summary><span>⌘</span> PostgreSQL quick reference <i>⌄</i></summary><div class="reference-grid"><div><b>Filter & sort</b><code>WHERE amount &gt; 100<br>ORDER BY created_at DESC<br>LIMIT 10</code></div><div><b>Join tables</b><code>FROM customers c<br>JOIN orders o ON o.customer_id = c.id<br>LEFT JOIN payments p ON ...</code></div><div><b>Aggregate</b><code>COUNT(*), SUM(amount)<br>GROUP BY customer_id<br>HAVING COUNT(*) &gt; 1</code></div><div><b>CTE</b><code>WITH totals AS (<br>  SELECT ...<br>) SELECT * FROM totals;</code></div><div><b>Window functions</b><code>ROW_NUMBER() OVER (<br>  PARTITION BY customer_id<br>  ORDER BY created_at DESC)</code></div><div><b>Dates</b><code>CURRENT_DATE - INTERVAL '7 days'<br>DATE_TRUNC('month', created_at)<br>created_at::date</code></div><div><b>Conditional logic</b><code>CASE WHEN total &gt; 100<br>THEN 'High' ELSE 'Low' END<br>COALESCE(value, 0)</code></div><div><b>PostgreSQL notes</b><code>ILIKE '%text%'<br>NULLS LAST<br>FILTER (WHERE status = 'paid')</code></div></div></details>
           </article>
+          <div class="pane-divider" id="paneDivider" role="separator" aria-orientation="vertical" aria-label="Resize problem and editor panels" tabindex="0"></div>
 
           <section class="editor-panel">
-            <div class="editor-toolbar"><div class="tab active"><span class="sql-dot">S</span> solution.sql <button>×</button></div><button class="add-tab">+</button><div class="toolbar-space"></div><span class="dialect">PostgreSQL</span></div>
+            <div class="editor-toolbar"><div class="tab active"><span class="sql-dot">S</span> solution.sql <button>×</button></div><button class="add-tab">+</button><div class="toolbar-space"></div><div class="engine-selector"><button class="engine-button active" id="enginePostgres">PostgreSQL<small>runs in browser</small></button><button class="engine-button" id="engineSpark">Spark Scala<small>local computer only</small></button></div></div>
+            <div class="spark-local-notice" id="sparkLocalNotice"><span class="spark-local-dot"></span><span id="sparkLocalMessage"><b>Spark Scala · local-only</b> Local runner is not connected.</span></div>
             <div class="editor-wrap"><div class="line-numbers" id="lineNumbers">1<br>2<br>3</div><textarea id="queryEditor" spellcheck="false"></textarea></div>
-            <div class="runbar"><button class="reset-button" id="resetButton">↶ Reset</button><div class="shortcut">⌘ <span>Enter</span></div><button class="run-button" id="runButton">Run query <span>▶</span></button><button class="submit-button" id="submitButton">Submit solution <span>✓</span></button></div>
+            <div class="runbar"><button class="reset-button" id="resetButton">↶ Reset</button><div class="shortcut">⌘ <span>Enter</span></div><button class="cancel-spark-button" id="cancelSparkButton">■ Stop Spark run</button><button class="run-button" id="runButton">Run query <span>▶</span></button><button class="submit-button" id="submitButton">Submit solution <span>✓</span></button></div>
             <div class="result-panel"><div class="result-tabs"><button class="result-tab active" data-tab="results">Results <span id="resultBadge"></span></button><button class="result-tab" data-tab="schema">Schema</button><div class="result-status" id="resultStatus">Ready to run</div></div><div class="results-content" id="resultsContent"></div></div>
           </section>
         </section>
@@ -75,6 +80,7 @@
           <section class="domain-detail" id="domainDetail" hidden></section>
         </section>
         <section class="progress-view" id="progressView" hidden></section>
+        <section class="spark-track-view" id="sparkTrackView" hidden></section>
       </main>
     </div>
     <div class="toast" id="toast"></div>
@@ -99,5 +105,8 @@
     <script src="assets/js/features/answer-reveal.js" defer></script>
     <script src="assets/js/features/completion-indicators.js" defer></script>
     <script src="assets/js/features/editor-history.js" defer></script>
+    <script src="assets/js/features/pane-resize.js" defer></script>
+    <script src="assets/js/features/spark-scala.js" defer></script>
+    <script src="assets/js/features/spark-interview-track.js" defer></script>
   </body>
 </html>

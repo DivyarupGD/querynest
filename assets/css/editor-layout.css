@@ -1,9 +1,13 @@
 /* Keep query execution results inside the workspace instead of growing the editor. */
-body.practice-mode .content-grid{
+.content-grid{
+  --problem-pane-width:44%;
+  grid-template-columns:minmax(300px,var(--problem-pane-width)) 10px minmax(420px,1fr);
   height:calc(100dvh - 70px);
   min-height:0;
   overflow:hidden;
 }
+body.practice-mode .problem-panel{border-right:0}
+.pane-divider{position:relative;z-index:2;cursor:col-resize;background:#fff;border-left:1px solid var(--line);border-right:1px solid var(--line);touch-action:none}.pane-divider::after{content:'';position:absolute;top:50%;left:50%;width:3px;height:38px;border-radius:4px;background:#c8d4d2;transform:translate(-50%,-50%);opacity:0;transition:opacity .15s,background .15s}.pane-divider:hover::after,.pane-divider:focus-visible::after,body.resizing-panes .pane-divider::after{opacity:1;background:var(--teal)}body.resizing-panes{cursor:col-resize;user-select:none}
 body.practice-mode .editor-panel{
   height:100%;
   min-height:0;
@@ -25,11 +29,13 @@ body.practice-mode .result-panel{
 }
 
 @media(max-width:900px){
-  body.practice-mode .content-grid{
+  .content-grid{
     height:auto;
     overflow:visible;
   }
   body.practice-mode .editor-panel{
     height:650px;
   }
+  .content-grid{grid-template-columns:1fr}
+  .pane-divider{display:none}
 }
